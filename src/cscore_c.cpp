@@ -16,6 +16,9 @@
 #include "cscore_cpp.h"
 #include "c_util.h"
 
+#include "NetworkListener.h"
+#include "Notifier.h"
+
 extern "C" {
 
 CS_PropertyKind CS_GetPropertyKind(CS_Property property, CS_Status* status) {
@@ -373,6 +376,24 @@ void CS_FreeNetworkInterfaces(char** interfaces, int count) {
   if (!interfaces) return;
   for (int i = 0; i < count; ++i) std::free(interfaces[i]);
   std::free(interfaces);
+}
+
+#include <cstdio>
+
+// destroy all cscore threads
+void CS_Destroy() {
+  
+  try {
+    cs::Notifier::GetInstance().Stop();
+  } catch(const std::exception& e) {
+      printf("Notifier: %s\n", e.what()); // capture
+  }
+    
+  try {
+    cs::NetworkListener::GetInstance().Stop();
+  } catch(const std::exception& e) {
+      printf("NetworkListener: %s\n", e.what()); // capture
+  }
 }
 
 }  // extern "C"
